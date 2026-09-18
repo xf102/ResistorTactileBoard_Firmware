@@ -120,6 +120,28 @@ void HC595_Init(void);
  */
 hc595_status_t HC595_Write32(uint32_t mask);
 
+/* ==========================================================================
+ *  Change: 新增
+ *  Editor: 谢峰
+ *  Time: 2026-09-18
+ *  Range: 增加不依赖系统时基的中断安全行激励写入接口
+ * ========================================================================== */
+/**
+ * @brief  在中断上下文中以有限轮询方式写入并锁存行激励掩码。
+ *
+ * @details
+ * 此接口直接轮询 SPI 状态寄存器，所有等待均受 HC595_ISR_POLL_LIMIT
+ * 限制，不调用依赖 HAL_GetTick/SysTick 的阻塞式 HAL SPI 接口。
+ * 适用于优先级高于 SysTick 的矩阵扫描定时器中断。
+ *
+ * @param  mask  行激励模式；有效位数由级联数量配置决定。
+ *
+ * @retval HC595_OK       写入并锁存成功
+ * @retval HC595_ERROR    SPI 未使能或硬件句柄无效
+ * @retval HC595_TIMEOUT  SPI 标志未在有限轮询次数内到达预期状态
+ */
+hc595_status_t HC595_Write32_ISR(uint32_t mask);
+
 /**
  * @brief  手动产生 ST_CP 锁存脉冲。
  *

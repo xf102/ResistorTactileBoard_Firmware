@@ -64,6 +64,7 @@ void DMA1_Channel3_IRQHandler(void);
  *  Range: 声明USART2 TX DMA1 Channel7中断入口
  * ========================================================================== */
 void DMA1_Channel7_IRQHandler(void);
+void USART1_IRQHandler(void);
 void TIM2_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 

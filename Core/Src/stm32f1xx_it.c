@@ -67,6 +67,7 @@ extern TIM_HandleTypeDef htim2;
  *  Range: 引入USART2 TX DMA句柄供Channel7中断分发
  * ========================================================================== */
 extern DMA_HandleTypeDef hdma_usart2_tx;
+extern UART_HandleTypeDef huart1;
 
 /* USER CODE END EV */
 
@@ -259,6 +260,17 @@ void TIM2_IRQHandler(void)
 void DMA1_Channel7_IRQHandler(void)
 {
   HAL_DMA_IRQHandler(&hdma_usart2_tx);
+}
+
+/* ==========================================================================
+ *  Change: 新增
+ *  Editor: 谢峰
+ *  Time: 2026-09-18
+ *  Range: 增加USART1文本控制台接收中断入口
+ * ========================================================================== */
+void USART1_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&huart1);
 }
 
 /* USER CODE BEGIN 1 */

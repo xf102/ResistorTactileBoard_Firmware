@@ -6,6 +6,7 @@ packDir: null
 srcDirs:
   - Core
   - Drivers
+  - app
 virtualFolder:
   name: <virtual_root>
   files:
@@ -24,13 +25,25 @@ targets:
         - STM32F103xB
       incList:
         - Core/Inc
+        - app
+        - Drivers/BSP
+        - Drivers/BSP/74HC595
+        - Drivers/BSP/ADS8681
+        - Drivers/BSP/CD74HC4067
+        - Drivers/BSP/Product
         - Drivers/STM32F1xx_HAL_Driver/Inc
         - Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
         - Drivers/CMSIS/Device/ST/STM32F1xx/Include
         - Drivers/CMSIS/Include
       libList: []
     excludeList:
-      - Drivers/BSP
+      - Drivers/BSP/BasicService
+      - Drivers/BSP/Status_LED
+      - Drivers/BSP/TPC5120S16
+      - app/data_acquisition_app.c
+      - app/data_acquisition_debug.c
+      - app/tpc5120_matrix_diag.c
+      - app/usart2_dataport_app.c
     settings:
       debugger: cortex-debug
     toolchain: GCC
@@ -107,13 +120,25 @@ targets:
         - STM32F103xB
       incList:
         - Core/Inc
+        - app
+        - Drivers/BSP
+        - Drivers/BSP/74HC595
+        - Drivers/BSP/ADS8681
+        - Drivers/BSP/CD74HC4067
+        - Drivers/BSP/Product
         - Drivers/STM32F1xx_HAL_Driver/Inc
         - Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
         - Drivers/CMSIS/Device/ST/STM32F1xx/Include
         - Drivers/CMSIS/Include
       libList: []
     excludeList:
-      - Drivers/BSP
+      - Drivers/BSP/BasicService
+      - Drivers/BSP/Status_LED
+      - Drivers/BSP/TPC5120S16
+      - app/data_acquisition_app.c
+      - app/data_acquisition_debug.c
+      - app/tpc5120_matrix_diag.c
+      - app/usart2_dataport_app.c
     settings:
       debugger: cortex-debug
     toolchain: GCC

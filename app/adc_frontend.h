@@ -39,6 +39,8 @@ bool adc_frontend_start_step(uint16_t step);
 adc_frontend_result_t adc_frontend_on_dma_complete(void);
 void adc_frontend_abort(void);
 bool adc_frontend_is_ready(void);
+bool adc_frontend_read_once(uint16_t *sample);
+bool adc_frontend_reset(void);
 
 #ifdef __cplusplus
 }

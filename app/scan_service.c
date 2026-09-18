@@ -215,7 +215,13 @@ void scan_on_timer_irq(void)
     }
 
     if (s_step == 0U) {
-        if (HC595_Write32(1UL << s_row) != HC595_OK) {
+        /* ==========================================================================
+         *  Change: 修改
+         *  Editor: 谢峰
+         *  Time: 2026-09-18
+         *  Range: TIM2 ISR 使用有限轮询接口，避免 HAL 超时等待低优先级 SysTick
+         * ========================================================================== */
+        if (HC595_Write32_ISR(1UL << s_row) != HC595_OK) {
             ++s_stats.spi_dma_errors;
             app_events_set(APP_EVENT_SCAN_FAULT);
             return;

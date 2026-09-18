@@ -76,6 +76,12 @@ void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
+  /* ==========================================================================
+   *  Change: 修改
+   *  Editor: 谢峰
+   *  Time: 2026-09-18
+   *  Range: 8x8矩阵联调阶段将USART2数据口调整为115200bps，兼容现有串口工具
+   * ========================================================================== */
   huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
@@ -112,6 +118,14 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    /* ==========================================================================
+     *  Change: 新增
+     *  Editor: 谢峰
+     *  Time: 2026-09-18
+     *  Range: 使能USART1全局中断以支持单字节RX重挂接
+     * ========================================================================== */
+    HAL_NVIC_SetPriority(USART1_IRQn, 2, 0);
+    HAL_NVIC_EnableIRQ(USART1_IRQn);
 
     GPIO_InitStruct.Pin = GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -165,6 +179,14 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     PA10     ------> USART1_RX
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9|GPIO_PIN_10);
+
+    /* ==========================================================================
+     *  Change: 新增
+     *  Editor: 谢峰
+     *  Time: 2026-09-18
+     *  Range: USART1反初始化时关闭控制台接收中断
+     * ========================================================================== */
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
 
   /* USER CODE BEGIN USART1_MspDeInit 1 */
 

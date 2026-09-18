@@ -50,6 +50,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     app/app_events.c
     app/scan_service.c
     app/dataport.c
+    app/console.c
+    app/command.c
+    app/app_main.c
     Drivers/BSP/bsp_init.c
     Drivers/BSP/74HC595/drv_74hc595.c
     Drivers/BSP/ADS8681/drv_ads8681.c
@@ -80,4 +83,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
 
     # Add user defined libraries
+)
+
+# Generate the directly flashable Intel HEX image beside the ELF after linking.
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O ihex
+            $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
+            $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/${CMAKE_PROJECT_NAME}.hex
+    COMMENT "Generating ${CMAKE_PROJECT_NAME}.hex"
 )

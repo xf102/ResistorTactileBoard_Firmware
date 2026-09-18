@@ -201,6 +201,69 @@ hc595_status_t HC595_Write32(uint32_t mask)
     return HC595_OK;
 }
 
+/* ==========================================================================
+ *  Change: 新增
+ *  Editor: 谢峰
+ *  Time: 2026-09-18
+ *  Range: 实现有限轮询、无系统时基依赖的中断安全 SPI2 行激励写入
+ * ========================================================================== */
+/**
+ * @brief 在中断上下文中发送 74HC595 数据，并保证任何硬件异常下均有限返回。
+ */
+hc595_status_t HC595_Write32_ISR(uint32_t mask)
+{
+    SPI_TypeDef *spi;
+    uint32_t byte_index;
+    uint32_t poll_count;
+    volatile uint8_t received_data;
+
+    if (HC595_SPI_HANDLE->Instance == NULL) {
+        return HC595_ERROR;
+    }
+
+    spi = HC595_SPI_HANDLE->Instance;
+    if ((spi->CR1 & SPI_CR1_SPE) == 0U) {
+        return HC595_ERROR;
+    }
+
+    s_output_state = mask & HC595_OUTPUT_MASK;
+    hc595_pack_tx(s_output_state);
+
+    /* SPI2 为双线全双工：每发送一字节必须读取 DR，防止 RXNE/OVR 累积。 */
+    for (byte_index = 0U; byte_index < HC595_TX_BYTES; ++byte_index) {
+        poll_count = HC595_ISR_POLL_LIMIT;
+        while (((spi->SR & SPI_SR_TXE) == 0U) && (poll_count > 0U)) {
+            --poll_count;
+        }
+        if (poll_count == 0U) {
+            return HC595_TIMEOUT;
+        }
+
+        *(__IO uint8_t *)&spi->DR = s_tx_buf[byte_index];
+
+        poll_count = HC595_ISR_POLL_LIMIT;
+        while (((spi->SR & SPI_SR_RXNE) == 0U) && (poll_count > 0U)) {
+            --poll_count;
+        }
+        if (poll_count == 0U) {
+            return HC595_TIMEOUT;
+        }
+        received_data = *(__IO uint8_t *)&spi->DR;
+        (void)received_data;
+    }
+
+    poll_count = HC595_ISR_POLL_LIMIT;
+    while (((spi->SR & SPI_SR_BSY) != 0U) && (poll_count > 0U)) {
+        --poll_count;
+    }
+    if (poll_count == 0U) {
+        return HC595_TIMEOUT;
+    }
+
+    hc595_pulse_stcp();
+    return HC595_OK;
+}
+
 /**
  * @brief  手动产生 ST_CP 锁存脉冲。
  *

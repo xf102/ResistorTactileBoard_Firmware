@@ -1,4 +1,5 @@
 import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -27,6 +28,9 @@ class FirmwareBuildBoundaryTests(unittest.TestCase):
             "app/app_events.c",
             "app/scan_service.c",
             "app/dataport.c",
+            "app/console.c",
+            "app/command.c",
+            "app/app_main.c",
             "Drivers/BSP/74HC595/drv_74hc595.c",
             "Drivers/BSP/ADS8681/drv_ads8681.c",
             "Drivers/BSP/CD74HC4067/drv_cd74hc4067.c",
@@ -38,6 +42,58 @@ class FirmwareBuildBoundaryTests(unittest.TestCase):
         compile_text = COMPILE_DB.read_text(encoding="utf-8").replace("\\", "/")
         self.assertNotIn("ResistorTactileBoard-1", compile_text)
         self.assertNotIn("rt-thread-nano", compile_text)
+
+    def test_firmware_has_no_runtime_heap_symbols(self):
+        nm = (
+            Path.home()
+            / ".eide"
+            / "tools"
+            / "gcc_arm"
+            / "bin"
+            / "arm-none-eabi-nm.exe"
+        )
+        elf = BUILD_DIR / "ResistorTactileBoard_Firmware.elf"
+        result = subprocess.run(
+            [str(nm), "--defined-only", str(elf)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        symbols = {line.split()[-1] for line in result.stdout.splitlines() if line.split()}
+        self.assertTrue({"malloc", "free", "calloc"}.isdisjoint(symbols), symbols)
+
+    def test_scan_uses_tick_independent_row_write_inside_timer_irq(self):
+        nm = (
+            Path.home()
+            / ".eide"
+            / "tools"
+            / "gcc_arm"
+            / "bin"
+            / "arm-none-eabi-nm.exe"
+        )
+        scan_object = (
+            BUILD_DIR
+            / "CMakeFiles"
+            / "ResistorTactileBoard_Firmware.dir"
+            / "app"
+            / "scan_service.c.obj"
+        )
+        result = subprocess.run(
+            [str(nm), "-u", str(scan_object)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        undefined = {line.split()[-1] for line in result.stdout.splitlines() if line.split()}
+        self.assertIn("HC595_Write32_ISR", undefined)
+
+    def test_both_uart_ports_use_115200_for_8x8_bringup(self):
+        usart_source = (ROOT / "Core" / "Src" / "usart.c").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertEqual(2, usart_source.count("Init.BaudRate = 115200;"))
+        self.assertNotIn("Init.BaudRate = 2000000;", usart_source)
 
 
 if __name__ == "__main__":

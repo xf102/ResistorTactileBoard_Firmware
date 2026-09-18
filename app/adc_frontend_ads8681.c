@@ -188,3 +188,47 @@ bool adc_frontend_is_ready(void)
 {
     return !s_transfer_active && (g_bsp_adc.dma_busy == 0U);
 }
+
+/* ==========================================================================
+ *  Change: 新增
+ *  Editor: 谢峰
+ *  Time: 2026-09-18
+ *  Range: 扫描停止时提供通用单次诊断采样，首帧用于刷新ADS8681流水线
+ * ========================================================================== */
+bool adc_frontend_read_once(uint16_t *sample)
+{
+    uint16_t discarded;
+
+    if ((sample == NULL) || !adc_frontend_is_ready()) {
+        return false;
+    }
+
+    CD74HC4067_Select(0U);
+    adc_frontend_delay_us(ADC_FRONTEND_MUX_SETTLE_US);
+    if (ADS8681_ReadRaw(&g_bsp_adc, &discarded) != ADS8681_OK) {
+        return false;
+    }
+    return ADS8681_ReadRaw(&g_bsp_adc, sample) == ADS8681_OK;
+}
+
+/* ==========================================================================
+ *  Change: 新增
+ *  Editor: 谢峰
+ *  Time: 2026-09-18
+ *  Range: 扫描停止时复位ADS8681并恢复默认输入量程和软件流水状态
+ * ========================================================================== */
+bool adc_frontend_reset(void)
+{
+    if (!adc_frontend_is_ready()) {
+        return false;
+    }
+
+    ADS8681_Reset(&g_bsp_adc);
+    if (ADS8681_SetRange(&g_bsp_adc, BSP_ADS8681_DEFAULT_RANGE) != ADS8681_OK) {
+        return false;
+    }
+    s_row_prepared = false;
+    s_expected_step = 0U;
+    memset(s_rx_buffer, 0, sizeof(s_rx_buffer));
+    return true;
+}
