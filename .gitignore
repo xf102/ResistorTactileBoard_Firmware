@@ -19,5 +19,8 @@ JLinkLog.txt
 __pycache__/
 *.pyc
 
+# ===== Office 临时锁文件 =====
+~$*
+
 # ===== 参考用的旧版本拷贝，不上传 =====
 ResistorTactileBoard-1/
