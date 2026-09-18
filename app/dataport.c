@@ -11,6 +11,7 @@
 #include "app_events.h"
 #include "frame_protocol.h"
 #include "frame_service.h"
+#include "sample_mapper.h"
 #include "usart.h"
 
 #define DATAPORT_TX_TIMEOUT_MS  100U
@@ -32,6 +33,13 @@ void dataport_init(void)
     s_frame_counter = 0U;
     s_tx_started_tick = 0U;
     memset(&s_stats, 0, sizeof(s_stats));
+    /* ==========================================================================
+     *  Change: 新增
+     *  Editor: 谢峰
+     *  Time: 2026-09-18
+     *  Range: 数据口初始化时同步启动逐点未按压零点校准
+     * ========================================================================== */
+    sample_mapper_init();
 }
 
 /* ==========================================================================
@@ -84,6 +92,15 @@ void dataport_process(void)
     frame_buffer_t *raw_frame = frame_take_raw();
     if (raw_frame != NULL) {
         uint16_t packed_len = 0U;
+        /* ==========================================================================
+         *  Change: 新增
+         *  Editor: 谢峰
+         *  Time: 2026-09-18
+         *  Range: 在协议打包前将ADC原始矩阵原地转换为工具0至1019显示值
+         * ========================================================================== */
+        sample_mapper_process_frame(raw_frame->storage,
+                                    raw_frame->rows,
+                                    raw_frame->cols);
         if (!frame_protocol_pack_inplace(raw_frame->storage,
                                          frame_storage_capacity_bytes(),
                                          raw_frame->rows,

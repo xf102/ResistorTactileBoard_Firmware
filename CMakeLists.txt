@@ -53,6 +53,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     app/console.c
     app/command.c
     app/app_main.c
+    app/sample_mapper.c
     Drivers/BSP/bsp_init.c
     Drivers/BSP/74HC595/drv_74hc595.c
     Drivers/BSP/ADS8681/drv_ads8681.c

@@ -19,12 +19,13 @@ COMMANDS = {
     "spi_status": "show ADC frontend readiness",
     "stats_show": "show all runtime counters",
     "stats_clear": "clear all runtime counters",
+    "zero_calibrate": "recapture idle zero baseline",
 }
 
 
 class CommandContractTests(unittest.TestCase):
     def test_required_commands_have_clear_help(self):
-        self.assertEqual(len(COMMANDS), 13)
+        self.assertEqual(len(COMMANDS), 14)
         for name, help_text in COMMANDS.items():
             self.assertTrue(name)
             self.assertGreaterEqual(len(help_text.split()), 3)

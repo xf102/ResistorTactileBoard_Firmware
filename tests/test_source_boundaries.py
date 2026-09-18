@@ -31,6 +31,7 @@ class FirmwareBuildBoundaryTests(unittest.TestCase):
             "app/console.c",
             "app/command.c",
             "app/app_main.c",
+            "app/sample_mapper.c",
             "Drivers/BSP/74HC595/drv_74hc595.c",
             "Drivers/BSP/ADS8681/drv_ads8681.c",
             "Drivers/BSP/CD74HC4067/drv_cd74hc4067.c",

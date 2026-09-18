@@ -11,6 +11,7 @@
 #include "dataport.h"
 #include "frame_service.h"
 #include "scan_service.h"
+#include "sample_mapper.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -38,6 +39,7 @@ static void app_report_periodic_status(void)
     const uint32_t elapsed = now - s_status_last_tick;
     scan_status_t scan;
     dataport_stats_t data;
+    sample_mapper_status_t mapper;
     uint32_t total_frames;
     uint32_t fps;
 
@@ -47,12 +49,14 @@ static void app_report_periodic_status(void)
 
     scan_get_status(&scan);
     dataport_get_stats(&data);
+    sample_mapper_get_status(&mapper);
     total_frames = scan.stats.frames_acquired + scan.stats.frames_dropped;
     fps = ((total_frames - s_status_last_frames) * 1000U) / elapsed;
 
     (void)console_printf(
         "[ACQ] fps=%lu rows=%u cols=%u period=%uus acquired=%lu dropped=%lu "
-        "spi_busy=%lu spi_err=%lu sync_err=%lu sent=%lu uart_err=%lu rx_err=%lu\r\n",
+        "spi_busy=%lu spi_err=%lu sync_err=%lu sent=%lu uart_err=%lu rx_err=%lu "
+        "calibrating=%u cal=%u/%u\r\n",
         (unsigned long)fps, scan.rows, scan.cols, scan.period_us,
         (unsigned long)scan.stats.frames_acquired,
         (unsigned long)scan.stats.frames_dropped,
@@ -62,7 +66,10 @@ static void app_report_periodic_status(void)
         (unsigned long)data.frames_transmitted,
         (unsigned long)(data.uart2_dma_errors + data.uart2_timeouts),
         (unsigned long)(console_get_rx_errors() +
-                        console_get_rx_rearm_failures()));
+                        console_get_rx_rearm_failures()),
+        mapper.calibrated ? 0U : 1U,
+        mapper.frames_collected,
+        mapper.frames_required);
 
     s_status_last_tick = now;
     s_status_last_frames = total_frames;

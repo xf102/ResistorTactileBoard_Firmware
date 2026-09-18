@@ -16,6 +16,7 @@
 #include "console.h"
 #include "dataport.h"
 #include "scan_service.h"
+#include "sample_mapper.h"
 
 #define COMMAND_MAX_ARGS  6
 
@@ -40,6 +41,7 @@ static int command_adc_reset(int argc, char **argv);
 static int command_spi_status(int argc, char **argv);
 static int command_stats_show(int argc, char **argv);
 static int command_stats_clear(int argc, char **argv);
+static int command_zero_calibrate(int argc, char **argv);
 
 /* ==========================================================================
  *  Change: 新增
@@ -61,6 +63,14 @@ static const command_entry_t s_commands[] = {
     {"spi_status", command_spi_status, "spi_status - show ADC frontend readiness"},
     {"stats_show", command_stats_show, "stats_show - show all runtime counters"},
     {"stats_clear", command_stats_clear, "stats_clear - clear all runtime counters"},
+    /* ==========================================================================
+     *  Change: 新增
+     *  Editor: 谢峰
+     *  Time: 2026-09-18
+     *  Range: 注册未按压状态重新采集逐点零点的控制命令
+     * ========================================================================== */
+    {"zero_calibrate", command_zero_calibrate,
+     "zero_calibrate - recapture 50 idle frames"},
 };
 
 /* ==========================================================================
@@ -338,5 +348,22 @@ static int command_stats_clear(int argc, char **argv)
     if (argc != 1) return console_write("ERR usage: stats_clear\r\n") ? -1 : -1;
     scan_clear_stats();
     dataport_clear_stats();
+    return 0;
+}
+
+/* ==========================================================================
+ *  Change: 新增
+ *  Editor: 谢峰
+ *  Time: 2026-09-18
+ *  Range: 实现运行中重新开始50帧未按压零点校准命令
+ * ========================================================================== */
+static int command_zero_calibrate(int argc, char **argv)
+{
+    (void)argv;
+    if (argc != 1) {
+        return console_write("ERR usage: zero_calibrate\r\n") ? -1 : -1;
+    }
+    sample_mapper_restart_calibration();
+    (void)console_write("Keep the sensor released for 50 frames\r\n");
     return 0;
 }
