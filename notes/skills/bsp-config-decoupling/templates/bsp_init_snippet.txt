@@ -1,0 +1,47 @@
+==============================================================
+ bsp_init.h / bsp_init.c -- lines to add for module "TEMPLATE"
+==============================================================
+
+=== bsp_init.h ===
+
+--- If the module exposes a global handle, add: ---
+
+#ifdef BSP_USE_TEMPLATE
+extern TEMPLATE_HandleTypeDef g_bsp_template;
+#endif
+
+
+=== bsp_init.c ===
+
+--- 1. Conditional includes (top of file) ---
+
+#ifdef BSP_USE_TEMPLATE
+  #include "pin_def.h"   /* TEMPLATE_xxx_PORT / PIN macros */
+  #include "spi.h"       /* extern SPI_HandleTypeDef hspiX; (if SPI) */
+#endif
+
+
+--- 2. Handle definition (after includes) ---
+
+#ifdef BSP_USE_TEMPLATE
+TEMPLATE_HandleTypeDef g_bsp_template;
+#endif
+
+
+--- 3. Init call (inside bsp_init() body) ---
+
+#ifdef BSP_USE_TEMPLATE
+    /* TEMPLATE: populate handle -> hardware reset -> configure */
+    g_bsp_template.field = value;
+    TEMPLATE_Init(&g_bsp_template);
+#endif
+
+
+--- 4. If the module has NO handle (stateless, like 74HC595) ---
+
+/* bsp_init.h: no extern needed */
+
+/* bsp_init.c: just the init call */
+#ifdef BSP_USE_TEMPLATE
+    TEMPLATE_Init();
+#endif

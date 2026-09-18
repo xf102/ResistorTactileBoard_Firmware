@@ -1,0 +1,12 @@
+##########################################################################################
+#                        Append Compiler Options For Source Files
+##########################################################################################
+
+version: "2.1"
+options:
+    Debug:
+        files: {}
+        virtualPathFiles: {}
+    Release:
+        files: {}
+        virtualPathFiles: {}

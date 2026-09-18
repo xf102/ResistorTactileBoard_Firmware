@@ -1,0 +1,23 @@
+# ===== 构建产物 =====
+build/
+cmake-build-*/
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.su
+*.lst
+
+# ===== IDE / 编辑器 =====
+.vscode/
+JLinkLog.txt
+*.uvguix.*
+
+# ===== 日志和临时文件 =====
+*.log
+__pycache__/
+*.pyc
+
+# ===== 参考用的旧版本拷贝，不上传 =====
+ResistorTactileBoard-1/

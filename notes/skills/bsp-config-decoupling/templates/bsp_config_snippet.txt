@@ -1,0 +1,28 @@
+==============================================================
+ bsp_config.h -- lines to add for a new module "TEMPLATE"
+==============================================================
+
+Convention: RT-Thread rtconfig.h style.
+  Enable  = #define BSP_USE_TEMPLATE        (no value)
+  Disable = comment out the line
+  Guard   = #ifdef / #ifndef  (never #if MACRO == 1)
+
+--- 1. Enable macro (add alongside existing BSP_USE_* macros) ---
+
+/** @brief TEMPLATE peripheral module (brief description) */
+#define BSP_USE_TEMPLATE
+
+
+--- 2. Optional: module-specific compile-time parameters ---
+
+#ifdef BSP_USE_TEMPLATE
+  /** @brief TEMPLATE default configuration value */
+  #define BSP_TEMPLATE_DEFAULT_XXX   0x00
+#endif
+
+
+--- 3. Conditional include (add at the bottom of the include block) ---
+
+#ifdef BSP_USE_TEMPLATE
+  #include "drv_TEMPLATE.h"
+#endif
